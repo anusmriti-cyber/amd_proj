@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { storage } from '../services/storage';
 import { BADGES, checkBadges } from '../data/badges';
 
@@ -13,8 +13,17 @@ export const useStreaks = (date) => {
   }, []);
 
   // Use this function to check for new badges whenever data changes
-  const evaluateBadges = (data) => {
-    const earned = checkBadges(data);
+  const evaluateBadges = useCallback((data) => {
+    // If no data passed, we try to construct it from storage for global checks
+    const checkData = data || {
+      meals: storage.getMeals(date),
+      water: storage.getWater(date),
+      streak: streak.count,
+      protein: 0, // Simplified for global check
+      targetProtein: 100
+    };
+
+    const earned = checkBadges(checkData);
     const earnedIds = badges.map(b => b.id);
     const newlyEarned = earned.filter(b => !earnedIds.includes(b.id));
     
@@ -23,12 +32,11 @@ export const useStreaks = (date) => {
       setBadges(storage.getBadges());
       setNewBadges(newlyEarned);
       
-      // Auto-clear new badges notification after 5 seconds
       setTimeout(() => {
         setNewBadges([]);
       }, 5000);
     }
-  };
+  }, [badges, date, streak.count]);
 
   const clearNewBadges = () => setNewBadges([]);
 

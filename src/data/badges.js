@@ -9,12 +9,13 @@ export const BADGES = {
 
 export const checkBadges = (data) => {
   const earned = [];
+  if (!data) return earned;
   
-  if (data.meals.length > 0) earned.push(BADGES.first_log);
+  if (data.meals && data.meals.length > 0) earned.push(BADGES.first_log);
   if (data.water >= 8) earned.push(BADGES.water_goal);
   if (data.streak >= 3) earned.push(BADGES.streak_3);
   if (data.streak >= 7) earned.push(BADGES.streak_7);
-  if (data.protein >= data.targetProtein) earned.push(BADGES.protein_king);
+  if (data.protein && data.targetProtein && data.protein >= data.targetProtein) earned.push(BADGES.protein_king);
 
   return earned;
 };
